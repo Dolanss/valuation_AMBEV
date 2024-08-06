@@ -8,9 +8,6 @@ library(rbcb)      # (https://cran.r-project.org/web/packages/rbcb/rbcb.pdf)
 
 #library(dplyr)    # (https://cran.r-project.org/web/packages/dplyr/dplyr.pdf)
 
-
-
-
 #Cleaning
 rm(list=ls())
 
@@ -26,10 +23,6 @@ search_company('Ambev S.A')
 data_inicial <- c("2018")
 data_final <- c("2023")
 
-
-
-
-
 MyData <- get_dfp_data(
   companies_cvm_codes =23264,
   first_year = data_inicial,
@@ -42,7 +35,6 @@ MyData <- get_dfp_data(
   do_shiny_progress = FALSE
 )
 
-
 #FINDING THE FCFE (FCFE = CFO - CAPEX - Working capital investment)
 
 #CFO (Cash Flow from Operations)
@@ -54,13 +46,10 @@ FCO <- MyData$`DF Consolidado - Demonstração do Fluxo de Caixa (Método Indire
 Tributos <- MyData$`DF Consolidado - Demonstração do Resultado`%>%
   filter(CD_CONTA==3.08)
 
-
-
 #CAPEX (Capital Expenditures)
 
 CAPEX <- MyData$`DF Consolidado - Demonstração do Fluxo de Caixa (Método Indireto)` %>%
   filter(CD_CONTA== 6.02)
-
 
 #Working capital (Operational Current Assets - Operational Current Liabilities)
 Passivo_circ <- MyData$`DF Consolidado - Balanço Patrimonial Passivo` %>%
@@ -71,9 +60,7 @@ Invest_giro <- data.frame(Ativo_circ$VL_CONTA - Passivo_circ$VL_CONTA)
 
 Delta_giro <- data.frame(diff(Invest_giro$Ativo_circ.VL_CONTA...Passivo_circ.VL_CONTA))
 
-
 #FCDE
-
 
 FCDE <- FCO$VL_CONTA[-1] + Tributos$VL_CONTA[-1] - CAPEX$VL_CONTA[-1] - Delta_giro
 
@@ -95,7 +82,6 @@ stocklist <- c("^BVSP","ABEV3.SA")
 
 #Gathering Stocks Data
 getSymbols(stocklist, from=start_d,to=end_d, src="yahoo")
-
 
 #Gathering Risk Free Asset (CDI) Data 
 
@@ -129,12 +115,10 @@ summary(reg_capm)
 
 data1 <- head(data1, - 1) 
 
-
 #Calculating Ke
 Ke <- mean(data1$cdi_daily) + cf[2]*mean(tail(data1$ex_ambev,30))
 
 print(Ke)
-
 
 #Calculando Kd
 
@@ -154,7 +138,7 @@ WACC = Ke*(ValorMercado/(ValorMercado + mean(DividaBruta$VL_CONTA))) + Kd*(mean(
 
 print(WACC)
 
-###Dados Futuros 
+#Dados Futuros 
 
 FCDE_base <- data.frame(c(tail(FCDE$diff.Invest_giro.Ativo_circ.VL_CONTA...Passivo_circ.VL_CONTA.,1),tail(FCDE$diff.Invest_giro.Ativo_circ.VL_CONTA...Passivo_circ.VL_CONTA.,1),tail(FCDE$diff.Invest_giro.Ativo_circ.VL_CONTA...Passivo_circ.VL_CONTA.,1)))
 
